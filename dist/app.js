@@ -25,6 +25,7 @@ const money = value => new Intl.NumberFormat('es-MX', { style: 'currency', curre
 const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
 const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const motion = window.NacreMotion;
 let motionPaused = prefersReducedMotion.matches;
 const video = $('#cloud-video');
 function updateMotion() {
@@ -40,24 +41,43 @@ updateMotion();
 if (!prefersReducedMotion.matches && 'IntersectionObserver' in window) {
   document.documentElement.classList.add('js-motion');
   const revealObserver = new IntersectionObserver(entries => entries.forEach(entry => {
-    if (entry.isIntersecting) { entry.target.classList.add('visible'); revealObserver.unobserve(entry.target); }
+    entry.target.classList.toggle('visible', entry.isIntersecting);
   }), { threshold: .08 });
   $$('.reveal').forEach(el => revealObserver.observe(el));
 }
 const menuToggle = $('.menu-toggle');
-function closeMenu() { $('.navigation').classList.remove('open'); menuToggle.setAttribute('aria-expanded', 'false'); menuToggle.setAttribute('aria-label', 'Abrir menú'); }
+let menuVersion = 0;
+async function closeMenu() {
+  const nav = $('.navigation');
+  if (!nav.classList.contains('open')) return;
+  const version = ++menuVersion;
+  motion.stop(nav);
+  nav.classList.add('menu-leaving'); nav.classList.remove('open');
+  menuToggle.setAttribute('aria-expanded', 'false'); menuToggle.setAttribute('aria-label', 'Abrir menú');
+  if (matchMedia('(max-width: 620px)').matches) await motion.play(nav,[{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(-12px)'}],{duration:180});
+  if (version === menuVersion) nav.classList.remove('menu-leaving');
+}
 menuToggle.addEventListener('click', () => {
   const open = menuToggle.getAttribute('aria-expanded') !== 'true';
-  $('.navigation').classList.toggle('open', open); menuToggle.setAttribute('aria-expanded', String(open)); menuToggle.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+  if (!open) { closeMenu(); return; }
+  ++menuVersion;
+  const nav = $('.navigation'); motion.stop(nav); nav.classList.remove('menu-leaving'); nav.classList.add('open');
+  menuToggle.setAttribute('aria-expanded', 'true'); menuToggle.setAttribute('aria-label', 'Cerrar menú');
+  motion.play(nav,[{opacity:0,transform:'translateY(-12px)'},{opacity:1,transform:'translateY(0)'}],{duration:300});
+  motion.enter(nav.children,10);
 });
 $$('.navigation a').forEach(link => link.addEventListener('click', closeMenu));
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
 matchMedia('(min-width: 621px)').addEventListener('change', e => { if (e.matches) closeMenu(); });
-function renderServices(category) {
+function renderServices(category, animate = true) {
   const panel = $('#service-panel');
+  const update = () => {
   panel.setAttribute('aria-labelledby', `tab-${category}`);
   panel.innerHTML = services[category].map(service => `<article class="service-item"><div><h3 class="service-title">${service.name}${service.badge ? `<span class="service-badge">${service.badge}</span>` : ''}</h3><p class="service-description">${service.description}</p><span class="service-time">${service.duration} MIN · UN MOMENTO PARA TI</span></div><div class="service-price"><strong>${money(service.price)}</strong><span>MXN · desde</span><button data-book-service="${service.id}" aria-label="Reservar ${service.name}">↗</button></div></article>`).join('');
   $$('[data-service-tab]').forEach(tab => { const active = tab.dataset.serviceTab === category; tab.setAttribute('aria-selected', String(active)); tab.tabIndex = active ? 0 : -1; });
+  };
+  if (animate) return motion.change(panel, update, '.service-item');
+  update();
 }
 $$('[data-service-tab]').forEach((tab, index, tabs) => {
   tab.addEventListener('click', () => renderServices(tab.dataset.serviceTab));
@@ -70,7 +90,7 @@ $$('[data-service-tab]').forEach((tab, index, tabs) => {
     if (next !== undefined) { e.preventDefault(); tabs[next].focus(); renderServices(tabs[next].dataset.serviceTab); }
   });
 });
-renderServices('manicura');
+renderServices('manicura', false);
 const booking = $('#booking-dialog');
 const lightbox = $('#lightbox');
 const bookingForm = $('#booking-form');
@@ -102,12 +122,13 @@ function updateTimes() {
   if ([...timeSelect.options].some(option => option.value === current)) timeSelect.value = current;
   if (timeSelect.options.length === 1) $('#booking-error').textContent = 'No quedan horarios para este servicio en ese día. Prueba otra fecha.';
 }
-serviceSelect.addEventListener('change', updateService);
+serviceSelect.addEventListener('change', () => { updateService(); motion.enter([$('.booking-total')],6); });
 dateInput.addEventListener('change', updateTimes);
 setDateBounds();
-function openDialog(dialog) { dialog.showModal(); document.body.classList.add('modal-open'); }
+function openDialog(dialog) { motion.openDialog(dialog); }
 function openBooking(serviceId) {
   closeMenu();
+  motion.cancelChange(booking);
   if (serviceId && allServices.some(service => service.id === serviceId)) serviceSelect.value = serviceId;
   $('#booking-form-view').hidden = false; $('#booking-success').hidden = true;
   setDateBounds(); updateService(); openDialog(booking);
@@ -115,27 +136,30 @@ function openBooking(serviceId) {
 document.addEventListener('click', e => {
   const bookButton = e.target.closest('[data-book], [data-book-service]');
   if (bookButton) openBooking(bookButton.dataset.bookService);
-  const closeButton = e.target.closest('[data-close]'); if (closeButton) closeButton.closest('dialog').close();
+  const closeButton = e.target.closest('[data-close]'); if (closeButton) motion.closeDialog(closeButton.closest('dialog'));
 });
 $$('dialog').forEach(dialog => {
+  dialog.addEventListener('cancel', e => { e.preventDefault(); motion.closeDialog(dialog); });
   dialog.addEventListener('close', () => { if (!$$('dialog[open]').length) document.body.classList.remove('modal-open'); });
-  dialog.addEventListener('click', e => { if (e.target === dialog) { const rect = dialog.getBoundingClientRect(); if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) dialog.close(); } });
+  dialog.addEventListener('click', e => { if (e.target === dialog) { const rect = dialog.getBoundingClientRect(); if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) motion.closeDialog(dialog); } });
 });
 $$('[data-filter]').forEach(button => button.addEventListener('click', () => {
   const filter = button.dataset.filter;
   $$('[data-filter]').forEach(el => { const active = el === button; el.classList.toggle('active', active); el.setAttribute('aria-pressed', String(active)); });
+  motion.change($('#gallery-grid'), () => {
   let count = 0;
   $$('.gallery-item').forEach(item => { item.hidden = filter !== 'all' && item.dataset.category !== filter; if (!item.hidden) { count++; item.classList.add('visible'); } });
   $('#gallery-count').textContent = `${count} ${count === 1 ? 'idea' : 'ideas'} para inspirarte`;
+  }, '.gallery-item:not([hidden])');
 }));
 $$('.gallery-item').forEach(item => item.addEventListener('click', () => {
   const source = item.querySelector('img'); $('#lightbox-image').src = source.src; $('#lightbox-image').alt = source.alt;
   $('#lightbox-title').textContent = item.dataset.title; $('#lightbox-description').textContent = item.dataset.description; openDialog(lightbox);
 }));
-$('#lightbox-book').addEventListener('click', () => { lightbox.close(); openBooking('nailart'); });
+$('#lightbox-book').addEventListener('click', async () => { await motion.closeDialog(lightbox); openBooking('nailart'); });
 $('#privacy-open').addEventListener('click', () => openDialog($('#privacy-dialog')));
 let reminder = null;
-bookingForm.addEventListener('submit', e => {
+bookingForm.addEventListener('submit', async e => {
   e.preventDefault(); updateTimes();
   if (!bookingForm.reportValidity()) return;
   const name = $('#booking-name').value.trim();
@@ -153,9 +177,15 @@ bookingForm.addEventListener('submit', e => {
     const key = document.createElement('span'); key.textContent = label;
     const text = document.createElement('span'); text.textContent = value; line.append(key, text); summary.append(line);
   });
-  $('#booking-form-view').hidden = true; $('#booking-success').hidden = false; booking.scrollTop = 0; $('#download-calendar').focus();
+  const changed = await motion.change(booking, () => {
+    $('#booking-form-view').hidden = true; $('#booking-success').hidden = false; booking.scrollTop = 0;
+  }, '#booking-form-view:not([hidden]), #booking-success:not([hidden])');
+  if (changed && booking.open) $('#download-calendar').focus();
 });
-$('#edit-booking').addEventListener('click', () => { $('#booking-form-view').hidden = false; $('#booking-success').hidden = true; serviceSelect.focus(); });
+$('#edit-booking').addEventListener('click', async () => {
+  const changed = await motion.change(booking, () => { $('#booking-form-view').hidden = false; $('#booking-success').hidden = true; }, '#booking-form-view:not([hidden]), #booking-success:not([hidden])');
+  if (changed && booking.open) serviceSelect.focus();
+});
 function icsEscape(text) { return text.replace(/\\/g, '\\\\').replace(/\r?\n/g, '\\n').replace(/;/g, '\\;').replace(/,/g, '\\,'); }
 function icsUtc(date) { return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); }
 $('#download-calendar').addEventListener('click', () => {

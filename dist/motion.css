@@ -1,0 +1,33 @@
+/* A single motion language: soft presses, short exits and unhurried arrivals. */
+:root{--motion-ease:cubic-bezier(.22,1,.36,1)}
+.button,.text-link,.back-top,.gallery-filters button,.service-price button,.dialog-close{position:relative;isolation:isolate}
+.button,.gallery-filters button,.service-price button,.back-top{overflow:hidden}
+.button>span,.text-link>span{transition:transform .35s var(--motion-ease)}
+.button:hover>span,.text-link:hover>span{transform:translate(3px,-3px)}
+.button:active{transform:translateY(0) scale(.975)}
+.click-wave{position:absolute;pointer-events:none;z-index:-1;border-radius:50%;background:currentColor;opacity:0;transform:scale(0);transform-origin:center}
+.navigation a,.footer-links a,.footer-links button,.dialog-close,.back-top{transition:color .25s,background-color .25s,box-shadow .25s}
+.dialog-close:hover{color:var(--wine);background:#e9e0d4;border-radius:50%}
+.back-top:hover{color:var(--paper);background:var(--wine)}
+.field input,.field select,.field textarea{transition:border-color .25s,background-color .25s,box-shadow .25s}
+.field:focus-within label{color:var(--wine)}
+.field input:focus,.field select:focus,.field textarea:focus{background:#fffcf5;border-color:var(--wine);box-shadow:0 3px 15px #743c4609}
+.field label{transition:color .25s}
+.gallery-count{min-height:12px}
+dialog[open]{animation:none}
+dialog::backdrop{animation:backdrop-enter .32s ease both}
+dialog.is-closing::backdrop{animation:backdrop-exit .2s ease both}
+.faq-list details{overflow:hidden}
+.page-curtain{position:fixed;inset:0;background:var(--paper);z-index:90;display:grid;place-items:center;pointer-events:none;opacity:0}
+.page-curtain .wordmark{font-size:65px;color:var(--wine)}
+.page-curtain .wordmark>span{font-size:7px;letter-spacing:3px}
+.section-arrival:focus{outline:none}
+@keyframes backdrop-enter{from{background:#28201800;backdrop-filter:blur(0)}to{background:#28201880;backdrop-filter:blur(6px)}}
+@keyframes backdrop-exit{from{background:#28201880;backdrop-filter:blur(6px)}to{background:#28201800;backdrop-filter:blur(0)}}
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:native-page-exit .2s ease both}
+::view-transition-new(root){animation:native-page-enter .45s var(--motion-ease) both}
+@keyframes native-page-exit{to{opacity:0;transform:translateY(-8px)}}
+@keyframes native-page-enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@media(max-width:620px){.navigation.open{transform-origin:top center}.navigation.menu-leaving{display:flex;pointer-events:none}}
+@media(prefers-reduced-motion:reduce){.page-curtain{display:none}::view-transition-old(root),::view-transition-new(root){animation:none}.button:active{transform:none}.button:hover>span,.text-link:hover>span{transform:none}}
