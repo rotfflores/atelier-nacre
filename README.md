@@ -11,6 +11,8 @@ Ejecuta `npm run dev` en esta carpeta y abre http://127.0.0.1:4173.
 - `dist/index.html`: marca, textos, ubicación, horarios y secciones.
 - `dist/styles.css`: colores, tipografía, composición, animaciones y diseño responsive.
 - `dist/app.js`: carta de servicios, precios, tiempos, filtros y reserva de demostración.
+- `dist/catalog.js` y `dist/catalog.css`: catálogo de seis productos de cuidado, fichas de detalle y opción para añadir un producto a las notas de una visita. Las presentaciones son ilustraciones SVG locales y los precios son ficticios.
+- `dist/icons.js`: iconos SVG de trazo uniforme, sin emojis ni fuentes de iconos. El mismo formato se integra directamente en el HTML para los iconos estáticos.
 - `dist/motion.js` y `dist/motion.css`: respuesta al pulsar botones, entradas y salidas de ventanas, cambios de servicios y filtros, menú móvil, acordeones y transiciones de navegación. Las animaciones se omiten al activar movimiento reducido en el dispositivo; los clics rápidos cancelan transiciones anteriores sin bloquear la interfaz.
 - `dist/assets/`: fotografías, favicon y fondo de video adaptado del archivo proporcionado por el usuario; se eliminó el audio para uso de fondo.
 
@@ -18,4 +20,4 @@ El formulario no envía datos, no acepta pagos y no crea reservas reales. El rec
 
 ## Recursos
 
-Fotografías complementarias de Unsplash; tipografías Cormorant Garamond y DM Sans desde Google Fonts. Las fotografías se sirven localmente. Se respeta `prefers-reduced-motion` y se incluye un control para pausar el fondo y las animaciones.
+Fotografías complementarias de Unsplash; tipografías Cormorant Garamond y DM Sans desde Google Fonts. Las fotografías se sirven localmente. Se respeta `prefers-reduced-motion` automáticamente. El fondo se reproduce sin controles visibles.

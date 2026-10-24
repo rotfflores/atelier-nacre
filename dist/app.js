@@ -2,22 +2,30 @@ const services = {
   manicura: [
     { id: 'esencial', name: 'Manicura esencial', description: 'Limpieza, forma, cuidado de cutícula y tu esmalte favorito.', price: 350, duration: 45 },
     { id: 'gel', name: 'Gel de larga duración', description: 'Color y brillo impecables. Preparación delicada y acabado en gel.', price: 480, duration: 60, badge: 'THE EVERYDAY FAVORITE' },
-    { id: 'rubber', name: 'Rubber base', description: 'Refuerzo flexible para tu uña natural, con un acabado suave y uniforme.', price: 580, duration: 75 }
+    { id: 'rubber', name: 'Rubber base', description: 'Refuerzo flexible para tu uña natural, con un acabado suave y uniforme.', price: 580, duration: 75 },
+    { id: 'japonesa', name: 'Manicura japonesa', description: 'Pulido delicado y acabado natural para unas manos de apariencia luminosa.', price: 420, duration: 50 },
+    { id: 'glazed', name: 'Glazed & pearl', description: 'Base translúcida y un efecto nacarado que captura la luz con cada movimiento.', price: 620, duration: 80, badge: 'THE NACRE GLOW' }
   ],
   extensiones: [
     { id: 'softgel', name: 'Soft gel', description: 'Extensiones ligeras, forma a tu medida y color sólido incluido.', price: 750, duration: 100, badge: 'SOFT & EFFORTLESS' },
     { id: 'acrilico', name: 'Escultura en acrílico', description: 'Estructura personalizada para crear el largo y la forma que imaginas.', price: 850, duration: 120 },
-    { id: 'retoque', name: 'Retoque de estructura', description: 'Balance, mantenimiento y nuevo color para volver a enamorarte.', price: 600, duration: 90 }
+    { id: 'retoque', name: 'Retoque de estructura', description: 'Balance, mantenimiento y nuevo color para volver a enamorarte.', price: 600, duration: 90 },
+    { id: 'polygel', name: 'Escultura en polygel', description: 'Largo y forma personalizados con estructura ligera y color sólido.', price: 820, duration: 120 },
+    { id: 'babyboomer', name: 'Baby boomer', description: 'Degradado de rosa a blanco sobre extensiones para un acabado suave y elegante.', price: 950, duration: 135 }
   ],
   pedicura: [
     { id: 'pedicura', name: 'Pedicura esencial', description: 'Limpieza, limado y esmalte. El cuidado que tus pies merecen.', price: 450, duration: 60 },
     { id: 'spapies', name: 'Ritual de pies & spa', description: 'Exfoliación suave, mascarilla, masaje y esmalte de tu elección.', price: 650, duration: 80, badge: 'THE SLOW MOMENT' },
-    { id: 'duo', name: 'El dúo perfecto', description: 'Manicura y pedicura esenciales para una pausa completa.', price: 720, duration: 105 }
+    { id: 'duo', name: 'El dúo perfecto', description: 'Manicura y pedicura esenciales para una pausa completa.', price: 720, duration: 105 },
+    { id: 'pedigel', name: 'Pedicura con gel', description: 'Nuestro cuidado esencial de pies con color en gel y brillo de larga duración.', price: 590, duration: 75 },
+    { id: 'spadeluxe', name: 'Ritual spa deluxe', description: 'Baño tibio, exfoliación, envoltura hidratante y masaje prolongado.', price: 850, duration: 100, badge: 'SLOW BEAUTY' }
   ],
   extras: [
     { id: 'nailart', name: 'Nail art de autor', description: 'Detalles a mano, acentos sutiles o una idea completamente tuya. Desde dos uñas.', price: 100, duration: 20, badge: 'MAKE IT YOURS' },
     { id: 'retiro', name: 'Retiro cuidadoso', description: 'Retiro profesional de gel. Para acrílico o extensiones, consultar en el atelier.', price: 150, duration: 30 },
-    { id: 'spamanos', name: 'Ritual de manos', description: 'Exfoliación, mascarilla hidratante y masaje para un extra de cariño.', price: 200, duration: 20 }
+    { id: 'spamanos', name: 'Ritual de manos', description: 'Exfoliación, mascarilla hidratante y masaje para un extra de cariño.', price: 200, duration: 20 },
+    { id: 'french', name: 'French & micro french', description: 'Líneas finas, puntas clásicas o un acento de color sobre tu manicura.', price: 120, duration: 20 },
+    { id: 'chrome', name: 'Efecto chrome', description: 'Un acabado espejo, perlado o tornasol para transformar tu color favorito.', price: 150, duration: 20 }
   ]
 };
 const allServices = Object.values(services).flat();
@@ -26,17 +34,12 @@ const $ = selector => document.querySelector(selector);
 const $$ = selector => [...document.querySelectorAll(selector)];
 const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const motion = window.NacreMotion;
-let motionPaused = prefersReducedMotion.matches;
 const video = $('#cloud-video');
 function updateMotion() {
-  document.body.classList.toggle('motion-paused', motionPaused);
-  $('#motion-toggle').setAttribute('aria-pressed', String(motionPaused));
-  $('#motion-label').textContent = motionPaused ? 'Activar fondo' : 'Pausar fondo';
-  $('#motion-icon').textContent = motionPaused ? '▷' : 'Ⅱ';
-  if (motionPaused) video.pause(); else video.play().catch(() => { motionPaused = true; updateMotion(); });
+  if (prefersReducedMotion.matches) video.pause();
+  else video.play().catch(() => { /* The poster remains visible when autoplay is unavailable. */ });
 }
-$('#motion-toggle').addEventListener('click', () => { motionPaused = !motionPaused; updateMotion(); });
-prefersReducedMotion.addEventListener('change', e => { motionPaused = e.matches; updateMotion(); });
+prefersReducedMotion.addEventListener('change', updateMotion);
 updateMotion();
 if (!prefersReducedMotion.matches && 'IntersectionObserver' in window) {
   document.documentElement.classList.add('js-motion');
@@ -73,7 +76,7 @@ function renderServices(category, animate = true) {
   const panel = $('#service-panel');
   const update = () => {
   panel.setAttribute('aria-labelledby', `tab-${category}`);
-  panel.innerHTML = services[category].map(service => `<article class="service-item"><div><h3 class="service-title">${service.name}${service.badge ? `<span class="service-badge">${service.badge}</span>` : ''}</h3><p class="service-description">${service.description}</p><span class="service-time">${service.duration} MIN · UN MOMENTO PARA TI</span></div><div class="service-price"><strong>${money(service.price)}</strong><span>MXN · desde</span><button data-book-service="${service.id}" aria-label="Reservar ${service.name}">↗</button></div></article>`).join('');
+  panel.innerHTML = services[category].map(service => `<article class="service-item"><div><h3 class="service-title">${service.name}${service.badge ? `<span class="service-badge">${service.badge}</span>` : ''}</h3><p class="service-description">${service.description}</p><span class="service-time">${service.duration} MIN · UN MOMENTO PARA TI</span></div><div class="service-price"><strong>${money(service.price)}</strong><span>MXN · desde</span><button data-book-service="${service.id}" aria-label="Reservar ${service.name}">${NacreIcons('arrow-up-right')}</button></div></article>`).join('');
   $$('[data-service-tab]').forEach(tab => { const active = tab.dataset.serviceTab === category; tab.setAttribute('aria-selected', String(active)); tab.tabIndex = active ? 0 : -1; });
   };
   if (animate) return motion.change(panel, update, '.service-item');
