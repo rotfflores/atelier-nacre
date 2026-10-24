@@ -1,1 +1,1 @@
-{"name":"nacre-nail-atelier","version":"1.0.0","private":true,"description":"Plantilla editorial de un estudio de uñas. HTML, CSS y JavaScript sin dependencias.","scripts":{"dev":"node server.mjs","start":"node server.mjs","check":"node --check dist/app.js"}}
+{"name":"nacre-nail-atelier","version":"1.0.0","private":true,"description":"Sitio editorial de un estudio de uñas con seis páginas independientes.","scripts":{"dev":"node server.mjs","start":"node server.mjs","build":"node scripts/build-pages.mjs","check":"node --check dist/app.js"}}

@@ -132,13 +132,13 @@
     }
   });
   window.addEventListener('popstate',() => {
-    const target = document.getElementById(decodeURIComponent(location.hash.slice(1))) || document.getElementById('inicio');
+    const target = document.getElementById(decodeURIComponent(location.hash.slice(1))) || document.getElementById('contenido');
     enter([target],12);
   });
   function arrive() {
     curtain.style.opacity = '0'; navigating = false;
     document.querySelectorAll('dialog.is-closing').forEach(dialog => dialog.classList.remove('is-closing'));
-    enter(document.querySelectorAll('.hero-copy > *, .hero-visual'),18);
+    enter(document.querySelectorAll('.hero-copy > *, .hero-visual, .page-intro > *'),18);
     play(document.querySelector('.site-header'),[{opacity:0,transform:'translateY(-10px)'},{opacity:1,transform:'translateY(0)'}],{duration:500});
   }
   window.addEventListener('pageshow',arrive);

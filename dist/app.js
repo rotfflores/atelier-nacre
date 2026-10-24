@@ -36,6 +36,7 @@ const prefersReducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const motion = window.NacreMotion;
 const video = $('#cloud-video');
 function updateMotion() {
+  if (!video) return;
   if (prefersReducedMotion.matches) video.pause();
   else video.play().catch(() => { /* The poster remains visible when autoplay is unavailable. */ });
 }
@@ -57,7 +58,7 @@ async function closeMenu() {
   motion.stop(nav);
   nav.classList.add('menu-leaving'); nav.classList.remove('open');
   menuToggle.setAttribute('aria-expanded', 'false'); menuToggle.setAttribute('aria-label', 'Abrir menú');
-  if (matchMedia('(max-width: 620px)').matches) await motion.play(nav,[{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(-12px)'}],{duration:180});
+  if (matchMedia('(max-width: 1050px)').matches) await motion.play(nav,[{opacity:1,transform:'translateY(0)'},{opacity:0,transform:'translateY(-12px)'}],{duration:180});
   if (version === menuVersion) nav.classList.remove('menu-leaving');
 }
 menuToggle.addEventListener('click', () => {
@@ -71,7 +72,7 @@ menuToggle.addEventListener('click', () => {
 });
 $$('.navigation a').forEach(link => link.addEventListener('click', closeMenu));
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
-matchMedia('(min-width: 621px)').addEventListener('change', e => { if (e.matches) closeMenu(); });
+matchMedia('(min-width: 1051px)').addEventListener('change', e => { if (e.matches) closeMenu(); });
 function renderServices(category, animate = true) {
   const panel = $('#service-panel');
   const update = () => {
@@ -93,7 +94,7 @@ $$('[data-service-tab]').forEach((tab, index, tabs) => {
     if (next !== undefined) { e.preventDefault(); tabs[next].focus(); renderServices(tabs[next].dataset.serviceTab); }
   });
 });
-renderServices('manicura', false);
+if ($('#service-panel')) renderServices('manicura', false);
 const booking = $('#booking-dialog');
 const lightbox = $('#lightbox');
 const bookingForm = $('#booking-form');
@@ -204,3 +205,4 @@ $('#download-calendar').addEventListener('click', () => {
   const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'mi-momento-nacre-demo.ics'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 $('#year').textContent = new Date().getFullYear();
+document.documentElement.dataset.appReady = 'true';
