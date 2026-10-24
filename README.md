@@ -4,7 +4,7 @@ Sitio de demostración en español con seis páginas HTML independientes, CSS y 
 
 ## Páginas
 
-- dist/index.html: presentación breve y accesos al sitio.
+- dist/index.html: presentación, resumen visual de cada página y tres opiniones ficticias identificadas como ejemplos.
 - dist/atelier.html: filosofía, criterios de trabajo y experiencia de la visita.
 - dist/servicios.html: 20 servicios, precios, tiempos, comparativa de técnicas y preguntas sobre los servicios.
 - dist/disenos.html: galería filtrable, fichas de inspiración y guía de formas de uñas.
@@ -21,6 +21,7 @@ Ejecuta npm run dev y abre http://127.0.0.1:4173. Ejecuta npm run build después
 - src/shell.html: base del documento y ventanas compartidas; la navegación y el pie se generan en el script de construcción.
 - src/sections/: secciones que se utilizan únicamente en su página correspondiente.
 - dist/pages.css: páginas, navegación adaptable y nuevos bloques editoriales.
+- src/sections/home-overview.html y dist/home.css: resúmenes de Inicio y testimonios ficticios de demostración.
 - dist/app.js: servicios, precios, filtros y formulario de reserva.
 - dist/catalog.js: productos y opción para incluirlos en las notas de la visita.
 - dist/icons.js: iconos SVG independientes de las fuentes del dispositivo.

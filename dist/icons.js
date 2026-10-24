@@ -1,6 +1,7 @@
 // Inline vector paths keep the same appearance across platforms without an icon font.
 window.NacreIcons = (() => {
   const paths = {
+    star:'<path d="m12 3 2.8 5.7 6.3.9-4.5 4.4 1.1 6.2-5.7-3-5.7 3 1.1-6.2L3.2 9.6l6-.9L12 3Z"/>',
     'arrow-up-right':'<path d="M7 17 17 7M7 7h10v10"/>',
     'arrow-down-right':'<path d="m7 7 10 10M7 17h10V7"/>',
     'arrow-down':'<path d="M12 4v16m-6-6 6 6 6-6"/>',
